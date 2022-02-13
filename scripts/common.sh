@@ -3,12 +3,12 @@
 # Variable Declaration
 KUBERNETES_VERSION="1.23.3-00"
 
-# disable swap 
+# disable swap
 sudo swapoff -a
 # keeps the swaf off during reboot
 sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
-#Letting iptables see bridged traffic 
+#Letting iptables see bridged traffic
 lsmod | grep br_netfilter
 sudo modprobe br_netfilter
 
@@ -73,7 +73,7 @@ sudo systemctl restart containerd
 echo "ContainerD Runtime Configured Successfully"
 
 #Installing kubeadm, kubelet and kubectl
-sudo apt-get update -y 
+sudo apt-get update -y
 sudo apt-get install -y apt-transport-https ca-certificates curl
 
 #Google Cloud public signing key
@@ -89,3 +89,8 @@ sudo apt-get install -y kubelet kubectl kubeadm
 
 sudo apt-mark hold kubelet kubeadm kubectl
 
+# https://stackoverflow.com/questions/69085180/how-to-install-kubernetes-cluster-on-azure-ubuntu-virtual-machine-20-04-lts/69128645#69128645
+sudo cp /lib/systemd/system/docker.service  /lib/systemd/system/docker.service.bk
+sudo sed -i 's/containerd.sock/containerd.sock --exec-opt native.cgroupdriver=systemd/' /lib/systemd/system/docker.service
+sudo systemctl daemon-reload
+sudo systemctl restart docker

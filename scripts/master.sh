@@ -1,4 +1,5 @@
 #! /bin/bash
+set -ex
 
 MASTER_IP="10.0.0.10"
 NODENAME=$(hostname -s)
@@ -7,7 +8,6 @@ POD_CIDR="192.168.0.0/16"
 sudo kubeadm config images pull
 
 echo "Preflight Check Passed: Downloaded All Required Images"
-
 
 sudo kubeadm init --apiserver-advertise-address=$MASTER_IP  --apiserver-cert-extra-sans=$MASTER_IP --pod-network-cidr=$POD_CIDR --node-name $NODENAME --ignore-preflight-errors Swap
 
@@ -27,15 +27,14 @@ fi
 
 cp -i /etc/kubernetes/admin.conf /vagrant/configs/config
 touch /vagrant/configs/join.sh
-chmod +x /vagrant/configs/join.sh       
+chmod +x /vagrant/configs/join.sh
 
 # Generete kubeadm join command
 kubeadm token create --print-join-command > /vagrant/configs/join.sh
 
 # Install Calico Network Plugin
-curl https://docs.projectcalico.org/manifests/calico.yaml -O
-
-kubectl apply -f calico.yaml
+#curl https://docs.projectcalico.org/manifests/calico.yaml -O
+kubectl apply -f /vagrant/calico.yaml
 
 # Install Metrics Server
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
@@ -78,6 +77,3 @@ EOF
 
 sudo systemctl restart systemd-resolved
 sudo swapoff -a && sudo systemctl daemon-reload && sudo systemctl restart kubelet
-
-
-
